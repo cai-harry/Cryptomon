@@ -4,16 +4,16 @@ App = {
 
   init: async function () {
     // Load pets.
-    $.getJSON('../pets.json', function (data) {
+    $.getJSON('../pokemon.json', function (data) {
       var petsRow = $('#petsRow');
       var petTemplate = $('#petTemplate');
 
       for (i = 0; i < data.length; i++) {
         petTemplate.find('.panel-title').text(data[i].name);
         petTemplate.find('img').attr('src', data[i].picture);
-        petTemplate.find('.pet-breed').text(data[i].breed);
+        petTemplate.find('.pet-type').text(data[i].type);
         petTemplate.find('.pet-age').text(data[i].age);
-        petTemplate.find('.pet-location').text(data[i].location);
+        petTemplate.find('.pet-evolves-to').text(data[i].evolvesTo);
         petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
 
         petsRow.append(petTemplate.html());
@@ -78,7 +78,7 @@ App = {
     }).then(function (adopters) {
       for (i = 0; i < adopters.length; i++) {
         if (adopters[i] !== '0x0000000000000000000000000000000000000000') {
-          $('.panel-pet').eq(i).find('button').text('Success').attr('disabled', true);
+          $('.panel-pet').eq(i).find('button').text('Adopted').attr('disabled', true);
         }
       }
     }).catch(function (err) {
