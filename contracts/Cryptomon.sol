@@ -12,9 +12,9 @@ contract Cryptomon {
             owner[i] = msg.sender;
         }
 
-        // All pokemon cost 10
+        // All pokemon cost 1 ether
         for (uint8 i = 0; i < price.length; i++) {
-            price[i] = 10;
+            price[i] = 1 ether;
         }
     }
 

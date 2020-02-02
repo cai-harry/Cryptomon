@@ -80,17 +80,18 @@ App = {
 
       let contract = App.contracts.Cryptomon.deployed();
 
-      // contract.then(function (instance) {
-      //   return instance.getPrices.call();
-      // }).then(function (prices) {
-      //   for (i = 0; i < prices.length; i++) {
-      //     console.log(prices[i]);
-      //     var buttonText = "Buy ({0})".format(prices[i]);
-      //     $('.panel-pokemon').eq(i).find('button').text(buttonText);
-      //   }
-      // }).catch(function (err) {
-      //   console.log(err.message);
-      // });
+      contract.then(function (instance) {
+        return instance.getPrices.call();
+      }).then(function (prices) {
+        for (i = 0; i < prices.length; i++) {
+          let price = web3.fromWei(parseInt(prices[i]), 'ether');
+          console.log(price);
+          let buttonText = "Buy (" + price + " ETH)";
+          $('.panel-pokemon').eq(i).find('button').text(buttonText);
+        }
+      }).catch(function (err) {
+        console.log(err.message);
+      });
 
       contract.then(function (instance) {
         return instance.getOwners.call();
