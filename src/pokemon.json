@@ -20,7 +20,7 @@
     "name": "Bewear",
     "picture": "images/bewear.png",
     "age": 3,
-    "type": "Ghost",
+    "type": "Normal",
     "evolvesTo": "Bewear"
   },
   {

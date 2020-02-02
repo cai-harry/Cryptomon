@@ -1,5 +1,5 @@
-let Adoption = artifacts.require("Adoption");
+var Cryptomon = artifacts.require("./Cryptomon.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(Adoption);
+  deployer.deploy(Cryptomon);
 };
