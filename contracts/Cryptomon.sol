@@ -1,26 +1,27 @@
 pragma solidity ^0.6.1;
+pragma experimental ABIEncoderV2; // to return Pokemon struct
 
 contract Cryptomon {
 
     struct Pokemon {
-        string pokemonSpecies;
-        string pokemonType;
+        bytes32 pokemonSpecies;
+        bytes32 pokemonType;
         address owner;
         bool forSale;
         uint price;
         uint8 level;
         bool stunned;
-        string evolvesTo;
+        bytes32 evolvesTo;
         uint8 timesCanBreed;
         uint generation;
-        string breedsTo;
+        bytes32 breedsTo;
     }
 
     address public _admin;
 
     Pokemon[] public _pokemons;
-    Pokemon[] public _pokemonsForSale;
-    mapping(address => Pokemon[]) public _pokemonsByOwner;
+    uint[] public _pokemonsForSale;
+    mapping(address => uint[]) public _pokemonsByOwner;
 
     mapping (address => uint) public _pendingWithdrawals;
 
@@ -31,6 +32,11 @@ contract Cryptomon {
 
     constructor() public {
         _admin = msg.sender;
+    }
+
+    function getPokemon(uint id) external view returns (Pokemon memory) {
+        Pokemon memory requested = _pokemons[id];
+        return requested;
     }
 
     // function getIdsForSale() public view returns (uint[] memory ids) {
@@ -52,13 +58,13 @@ contract Cryptomon {
     // }
 
     function addPokemon(
-        string calldata species,
-        string calldata pokemonType,
+        bytes32 species,
+        bytes32 pokemonType,
         uint price,
         uint8 level,
-        string calldata evolvesTo,
+        bytes32 evolvesTo,
         uint8 timesCanBreed,
-        string calldata breedsTo
+        bytes32 breedsTo
     ) external adminOnly() returns (uint) {
         Pokemon memory newPokemon = Pokemon({
             pokemonSpecies: species,

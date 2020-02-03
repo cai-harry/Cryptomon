@@ -10,15 +10,16 @@ contract("Cryptomon", accounts => {
     it("addPokemon", async () => {
         let contract = await Cryptomon.deployed();
         let id = await contract.addPokemon.call(
-            "Tapu Koko",            // species
-            "Electric",             // type
-            web3.toWei(1, 'ether'), // price
-            5,                      // level
-            "Tapu Koko",            // evolvesTo
-            0,                      // timesCanBreed
-            "Tapu Koko"             // breedsTo
+            web3.utils.fromAscii("Tapu Koko"),  // species
+            web3.utils.fromAscii("Electric"),   // type
+            web3.utils.toWei('1', "ether"),     // price
+            5,                                  // level
+            web3.utils.fromAscii("Tapu Koko"),  // evolvesTo
+            0,                                  // timesCanBreed
+            web3.utils.fromAscii("Tapu Koko")   // breedsTo
         );
-        let newPokemon = await contract._pokemons.call(id);
+        console.log(id);
+        let newPokemon = await contract.getPokemon.call(id);
         assert.equal(newPokemon.species, "Tapu Koko");
         assert.equal(newPokemon.owner, accounts[0]);
     });
