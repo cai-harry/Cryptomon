@@ -89,18 +89,18 @@ module.exports = {
   },
 
   // Configure your compilers
-  // compilers: {
-  //   solc: {
-  //     version: "stable",
-  //     docker: true,        
-  //     // settings: {          // See the solidity docs for advice about optimization and evmVersion
-  //     //  optimizer: {
-  //     //    enabled: false,
-  //     //    runs: 200
-  //     //  },
-  //     // evmVersion: "byzantium"
-  //     // }
-  //   }
-  // }
+  compilers: {
+    solc: {
+      version: ">=0.6.1",
+      // docker: true,        
+      // settings: {          // See the solidity docs for advice about optimization and evmVersion
+      //  optimizer: {
+      //    enabled: false,
+      //    runs: 200
+      //  },
+      // evmVersion: "byzantium"
+      // }
+    }
+  }
 
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.6.1;
 
 contract Cryptomon {
     address public _admin;
@@ -21,8 +21,15 @@ contract Cryptomon {
 
     mapping (address => uint) public _pendingWithdrawals;
 
+    event Purchase(address from, address to, uint id, uint amount);
+
     modifier adminOnly() {
-        require(msg.sender == _admin, "Only admin can call this function.");
+        require(msg.sender == _admin, "Only game admin can call this function.");
+        _;
+    }
+
+    modifier checkPokemonId(uint id) {
+        require(id >= 0 && id < _totalNumPokemon, "Pokemon id out of bounds");
         _;
     }
 
@@ -34,7 +41,7 @@ contract Cryptomon {
         _pokType.push("Electric");
         _pokType.push("Fairy");
         _pokOwner = [_admin, _admin];
-        _pokForSale = [false, false];
+        _pokForSale = [true, true];
         _pokPrice = [1 ether, 1 ether];
         _pokLevel = [5, 5];
         _pokStunned = [false, false];
@@ -47,27 +54,13 @@ contract Cryptomon {
         _totalNumPokemon = 2;
     }
 
-    function getOwner(uint id) external view returns (address owner) {
-        return _pokOwner[id];
+    receive () external payable {
+        _pendingWithdrawals[msg.sender] += msg.value;
     }
 
-    // function getIdsForSale() public view returns (uint[] memory ids) {
-    //     for (uint id = 0; id < _pokemons.length; id++) {
-    //         if(_pokemons[id].forSale){
-    //             ids.push(id);
-    //         }
-    //     }
-    //     return ids;
-    // }
-
-    // function getIdsOwnedBy(address account) public view returns (uint[] memory ids) {
-    //     for (uint id = 0; id < _pokemons.length; id++) {
-    //         if(_pokemons[id].owner == account){
-    //             ids.push(id);
-    //         }
-    //     }
-    //     return ids;
-    // }
+    function getOwner(uint id) external view checkPokemonId(id) returns (address owner) {
+        return _pokOwner[id];
+    }
 
     function addPokemon(
         bytes32 species,
@@ -77,7 +70,7 @@ contract Cryptomon {
         bytes32 evolvesTo,
         uint8 timesCanBreed,
         bytes32 breedsTo
-    ) external returns (uint) {
+    ) public adminOnly() returns (uint idOfNewPokemon) {
         _totalNumPokemon += 1;
         _pokSpecies.push(species);
         _pokType.push(pokemonType);
@@ -90,29 +83,42 @@ contract Cryptomon {
         _pokTimesCanBreed.push(timesCanBreed);
         _pokGeneration.push(0);
         _pokBreedsTo.push(breedsTo);
-        uint idOfNewPokemon = _totalNumPokemon - 1;
-        return idOfNewPokemon;
+        assert(_pokSpecies.length == _totalNumPokemon);
+        assert(_pokOwner.length == _totalNumPokemon);
+        return _totalNumPokemon - 1;
     }
 
-    function buyPokemon(uint id) external payable returns (uint) {
-        require(id >= 0 && id < _totalNumPokemon, "id out of bounds");
+    function buyPokemon(uint id) external payable checkPokemonId(id) returns (uint) {
+        require(_pokOwner[id] != msg.sender, "You already own this pokemon");
         require(_pokPrice[id] == msg.value, "No payment received or wrong payment amount");
-        require(_pokForSale[id], "The specified pokemon is not for sale");
-        _pendingWithdrawals[_pokOwner[id]] += msg.value;
+        require(_pokForSale[id], "This pokemon is not for sale");
+        address seller = _pokOwner[id];
+        _pendingWithdrawals[seller] += msg.value;
         _pokOwner[id] = msg.sender;
         _pokForSale[id] = false;
         _pokPrice[id] = 0;
+        emit Purchase(seller, msg.sender, id, msg.value);
         return id;
     }
 
-    function sellPokemon(uint id, uint amount) external {
+    function sellPokemon(uint id, uint amount) external checkPokemonId(id) {
+        require(msg.sender == _pokOwner[id], "You do not own this pokemon");
         _pokForSale[id] = true;
         _pokPrice[id] = amount;
     }
 
-    function withdrawFunds() external {
+    function checkBalance() external view returns (uint balance) {
+        return _pendingWithdrawals[msg.sender];
+    }
+
+    function withdrawFunds() external returns (uint balanceTransferred) {
+        require(_pendingWithdrawals[msg.sender] > 0, "You do not have any funds to withdraw");
         uint amount = _pendingWithdrawals[msg.sender];
         _pendingWithdrawals[msg.sender] = 0;
-        msg.sender.transfer(amount);
+        address payable recipient = msg.sender;
+        recipient.transfer(amount);
+        return amount;
     }
+
+
 }
