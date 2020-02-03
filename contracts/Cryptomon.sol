@@ -1,27 +1,23 @@
-pragma solidity ^0.6.1;
-pragma experimental ABIEncoderV2; // to return Pokemon struct
+pragma solidity ^0.5.0;
 
 contract Cryptomon {
-
-    struct Pokemon {
-        bytes32 pokemonSpecies;
-        bytes32 pokemonType;
-        address owner;
-        bool forSale;
-        uint price;
-        uint8 level;
-        bool stunned;
-        bytes32 evolvesTo;
-        uint8 timesCanBreed;
-        uint generation;
-        bytes32 breedsTo;
-    }
-
     address public _admin;
 
-    Pokemon[] public _pokemons;
-    uint[] public _pokemonsForSale;
-    mapping(address => uint[]) public _pokemonsByOwner;
+    uint public _totalNumPokemon;
+    bytes32[] public _pokSpecies;
+    bytes32[] public _pokType;
+    address[] public _pokOwner;
+    bool[] public _pokForSale;
+    uint[] public _pokPrice;
+    uint8[] public _pokLevel;
+    bool[] public _pokStunned;
+    bytes32[] public _pokEvolvesTo;
+    uint8[] public _pokTimesCanBreed;
+    uint[] public _pokGeneration;
+    bytes32[] public _pokBreedsTo;
+
+    uint[] public _idsForSale;
+    mapping(address => uint[]) public _idsByOwner;
 
     mapping (address => uint) public _pendingWithdrawals;
 
@@ -31,12 +27,28 @@ contract Cryptomon {
     }
 
     constructor() public {
+        // TODO: refactor
         _admin = msg.sender;
+        _pokSpecies.push("Tapu Koko");
+        _pokSpecies.push("Tapu Lele");
+        _pokType.push("Electric");
+        _pokType.push("Fairy");
+        _pokOwner = [_admin, _admin];
+        _pokForSale = [false, false];
+        _pokPrice = [1 ether, 1 ether];
+        _pokLevel = [5, 5];
+        _pokStunned = [false, false];
+        _pokEvolvesTo.push("Tapu Koko");
+        _pokEvolvesTo.push("Tapu Lele");
+        _pokTimesCanBreed = [0, 0];
+        _pokGeneration = [0, 0];
+        _pokBreedsTo.push("Tapu Koko");
+        _pokBreedsTo.push("Tapu Lele");
+        _totalNumPokemon = 2;
     }
 
-    function getPokemon(uint id) external view returns (Pokemon memory) {
-        Pokemon memory requested = _pokemons[id];
-        return requested;
+    function getOwner(uint id) external view returns (address owner) {
+        return _pokOwner[id];
     }
 
     // function getIdsForSale() public view returns (uint[] memory ids) {
@@ -65,41 +77,37 @@ contract Cryptomon {
         bytes32 evolvesTo,
         uint8 timesCanBreed,
         bytes32 breedsTo
-    ) external adminOnly() returns (uint) {
-        Pokemon memory newPokemon = Pokemon({
-            pokemonSpecies: species,
-            pokemonType: pokemonType,
-            owner: _admin,
-            forSale: true,
-            price: price,
-            level: level,
-            stunned: false,
-            evolvesTo: evolvesTo,
-            timesCanBreed: timesCanBreed,
-            generation: 0,
-            breedsTo: breedsTo
-        });
-        _pokemons.push(newPokemon);
-        uint idOfNewPokemon = _pokemons.length - 1;
+    ) external returns (uint) {
+        _totalNumPokemon += 1;
+        _pokSpecies.push(species);
+        _pokType.push(pokemonType);
+        _pokOwner.push(_admin);
+        _pokForSale.push(false);
+        _pokPrice.push(price);
+        _pokLevel.push(level);
+        _pokStunned.push(false);
+        _pokEvolvesTo.push(evolvesTo);
+        _pokTimesCanBreed.push(timesCanBreed);
+        _pokGeneration.push(0);
+        _pokBreedsTo.push(breedsTo);
+        uint idOfNewPokemon = _totalNumPokemon - 1;
         return idOfNewPokemon;
     }
 
     function buyPokemon(uint id) external payable returns (uint) {
-        require(id >= 0 && id <= _pokemons.length, "id out of bounds");
-        Pokemon storage pokemon = _pokemons[id];
-        require(pokemon.price == msg.value, "No payment received or wrong payment amount");
-        require(pokemon.forSale, "The specified pokemon is not for sale");
-        _pendingWithdrawals[pokemon.owner] += msg.value;
-        pokemon.owner = msg.sender;
-        pokemon.forSale = false;
-        pokemon.price = 0;
+        require(id >= 0 && id < _totalNumPokemon, "id out of bounds");
+        require(_pokPrice[id] == msg.value, "No payment received or wrong payment amount");
+        require(_pokForSale[id], "The specified pokemon is not for sale");
+        _pendingWithdrawals[_pokOwner[id]] += msg.value;
+        _pokOwner[id] = msg.sender;
+        _pokForSale[id] = false;
+        _pokPrice[id] = 0;
         return id;
     }
 
     function sellPokemon(uint id, uint amount) external {
-        Pokemon storage pokemon = _pokemons[id];
-        pokemon.forSale = true;
-        pokemon.price = amount;
+        _pokForSale[id] = true;
+        _pokPrice[id] = amount;
     }
 
     function withdrawFunds() external {
