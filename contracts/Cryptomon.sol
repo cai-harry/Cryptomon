@@ -10,6 +10,7 @@ contract Cryptomon {
     bool[] public _pokForSale;
     uint[] public _pokPrice;
     uint8[] public _pokLevel;
+    bool[] public _pokCanEvolve;
     bool[] public _pokStunned;
     bytes32[] public _pokEvolvesTo;
     uint8[] public _pokTimesCanBreed;
@@ -21,6 +22,8 @@ contract Cryptomon {
 
     mapping (address => uint) public _pendingWithdrawals;
 
+    uint public _revivePrice = 10 finney;
+
     event Purchase(address from, address to, uint id, uint amount);
 
     modifier adminOnly() {
@@ -30,6 +33,11 @@ contract Cryptomon {
 
     modifier checkPokemonId(uint id) {
         require(id >= 0 && id < _totalNumPokemon, "Pokemon id out of bounds");
+        _;
+    }
+
+    modifier checkOwnsPokemon(uint id) {
+        require(_pokOwner[id] == msg.sender, "You do not own this pokemon");
         _;
     }
 
@@ -44,6 +52,7 @@ contract Cryptomon {
         _pokForSale = [true, true];
         _pokPrice = [1 ether, 1 ether];
         _pokLevel = [5, 5];
+        _pokCanEvolve = [false, false];
         _pokStunned = [false, false];
         _pokEvolvesTo.push("Tapu Koko");
         _pokEvolvesTo.push("Tapu Lele");
@@ -78,6 +87,7 @@ contract Cryptomon {
         _pokForSale.push(false);
         _pokPrice.push(price);
         _pokLevel.push(level);
+        _pokCanEvolve.push(false);
         _pokStunned.push(false);
         _pokEvolvesTo.push(evolvesTo);
         _pokTimesCanBreed.push(timesCanBreed);
@@ -86,6 +96,10 @@ contract Cryptomon {
         assert(_pokSpecies.length == _totalNumPokemon);
         assert(_pokOwner.length == _totalNumPokemon);
         return _totalNumPokemon - 1;
+    }
+
+    function setRevivePrice(uint price) external adminOnly() {
+        _revivePrice = price;
     }
 
     function buyPokemon(uint id) external payable checkPokemonId(id) returns (uint) {
@@ -101,10 +115,66 @@ contract Cryptomon {
         return id;
     }
 
-    function sellPokemon(uint id, uint amount) external checkPokemonId(id) {
-        require(msg.sender == _pokOwner[id], "You do not own this pokemon");
+    function sellPokemon(uint id, uint amount) external checkPokemonId(id) checkOwnsPokemon(id) {
         _pokForSale[id] = true;
         _pokPrice[id] = amount;
+    }
+
+    function fight(uint usingId, uint againstId) external checkPokemonId(usingId) checkPokemonId(againstId) checkOwnsPokemon(usingId) 
+    returns (bool win) {
+        require(!_pokStunned[usingId], "This pokemon is stunned");
+        uint8 rand = random();
+        uint8 advantage = _pokLevel[usingId] - _pokLevel[againstId];
+        uint8 winThreshold = 4 + advantage;
+        uint winner;
+        uint loser;
+        if (rand >= winThreshold) {
+            win = true;
+            winner = usingId;
+            loser = againstId;
+        } else {
+            win = false;
+            winner = againstId;
+            loser = usingId;
+        }
+        _pokLevel[winner] += 1;
+        _pokCanEvolve[winner] = true;
+        _pokStunned[loser] = true;
+        return win;
+    }
+
+    function evolve(uint id) external checkPokemonId(id) checkOwnsPokemon(id) {
+        require(_pokCanEvolve[id], "This pokemon is not ready to evolve");
+        _pokCanEvolve[id] = false;
+        _pokStunned[id] = false;
+        _pokSpecies[id] = _pokEvolvesTo[id]; // TODO: what to set _pokEvolvesTo?
+    }
+
+    function revive(uint id) external payable checkPokemonId(id) checkOwnsPokemon(id) {
+        require(_pokStunned[id], "This pokemon is not stunned");
+        require(msg.value == _revivePrice, "No or wrong payment amount for revive");
+        _pendingWithdrawals[_admin] += msg.value;
+        _pokStunned[id] = false;
+    }
+
+    function breed(uint id) external checkPokemonId(id) checkOwnsPokemon(id) returns (uint newId){
+        require(_pokTimesCanBreed[id] > 0, "This pokemon cannot or can no longer breed");
+        _pokTimesCanBreed[id] -= 1;
+        // TODO: refactor
+        _totalNumPokemon += 1;
+        _pokSpecies.push(_pokBreedsTo[id]);
+        _pokType.push(_pokType[id]);
+        _pokOwner.push(msg.sender);
+        _pokForSale.push(false);
+        _pokPrice.push(0);
+        _pokLevel.push(1);
+        _pokCanEvolve.push(false);
+        _pokStunned.push(false);
+        _pokEvolvesTo.push(_pokEvolvesTo[id]); // TODO
+        _pokTimesCanBreed.push(2);
+        _pokGeneration.push(_pokGeneration[id] + 1);
+        _pokBreedsTo.push(_pokBreedsTo[id]);
+        return _totalNumPokemon - 1;
     }
 
     function checkBalance() external view returns (uint balance) {
@@ -120,5 +190,8 @@ contract Cryptomon {
         return amount;
     }
 
+    function random() private view returns (uint8) {
+        return uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty))) % 251);
+    }
 
 }

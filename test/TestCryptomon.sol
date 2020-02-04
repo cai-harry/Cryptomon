@@ -75,6 +75,30 @@ contract TestCryptomon {
         Assert.equal(mon._pokPrice(id), price, "The pokemon wasn't listed at the correct price");
     }
 
+    function testFight() public asNormalUser() {
+        // TODO: pick uneven fights with certain outcomes, then test winner and loser on evolve and revive
+        uint id = 1;
+        uint lvlBefore = mon._pokLevel(id);
+        bool win = mon.fight(id, 0);
+        if (win) {
+            Assert.equal(uint(mon._pokLevel(id)), lvlBefore+1, "Pokemon won but didn't gain a level");
+        } else {
+            Assert.isTrue(mon._pokStunned(id), "Pokemon lost but didn't get stunned");
+        }
+    }
+
+    function testEvolve() public asNormalUser() {
+        // TODO
+    }
+
+    function testRevive() public asNormalUser() {
+        // TODO
+    }
+
+    function testBreed() public asNormalUser() {
+        // TODO
+    }
+
     function testWithdrawFunds() public asNormalUser() {
         address(mon).transfer(0.1 ether);
         uint pendingBalance = mon.checkBalance();
