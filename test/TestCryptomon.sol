@@ -44,15 +44,20 @@ contract TestCryptomon {
         Assert.equal(admin, address(this), "Admin should be the contract creator");
     }
 
+    function testDefineSpecies() public asAdmin() {
+        mon.defineSpecies("Mimikyu", "Dark", "Mimikyu", "Mimikyu", 2);
+        Assert.equal(mon._speciesType("Mimikyu"), "Dark", "Species type not set correctly");
+        Assert.equal(mon._speciesEvolvesTo("Mimikyu"), "Mimikyu", "Species evolution not set correctly");
+        Assert.equal(mon._speciesBreedsTo("Mimikyu"), "Mimikyu", "Species breeding not set correctly");
+        Assert.equal(uint(mon._speciesTimesCanBreed("Mimikyu")), 2, "Species times can breed not set correctly");
+    }
+
     function testAddPokemon() public asAdmin() {
         uint id = mon.addPokemon(
             "Mimikyu",
-            "Fairy",
             0.1 ether,
-            3,
-            "Mimikyu",
-            2,
-            "Mimikyu"
+            true,
+            3
         );
 
         address newPokemonOwner = mon._pokOwner(id);

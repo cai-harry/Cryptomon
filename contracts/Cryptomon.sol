@@ -5,7 +5,6 @@ contract Cryptomon {
 
     uint public _totalNumPokemon;
     bytes32[] public _pokSpecies;
-    bytes32[] public _pokType;
     address[] public _pokOwner;
     bool[] public _pokForSale;
     uint[] public _pokPrice;
@@ -17,8 +16,10 @@ contract Cryptomon {
     uint[] public _pokGeneration;
     bytes32[] public _pokBreedsTo;
 
-    uint[] public _idsForSale;
-    mapping(address => uint[]) public _idsByOwner;
+    mapping(bytes32 => bytes32) public _speciesType;
+    mapping(bytes32 => bytes32) public _speciesEvolvesTo;
+    mapping(bytes32 => bytes32) public _speciesBreedsTo;
+    mapping(bytes32 => uint8) public _speciesTimesCanBreed;
 
     mapping (address => uint) public _pendingWithdrawals;
 
@@ -44,23 +45,11 @@ contract Cryptomon {
     constructor() public {
         // TODO: refactor
         _admin = msg.sender;
-        _pokSpecies.push("Tapu Koko");
-        _pokSpecies.push("Tapu Lele");
-        _pokType.push("Electric");
-        _pokType.push("Fairy");
-        _pokOwner = [_admin, _admin];
-        _pokForSale = [true, true];
-        _pokPrice = [1 ether, 1 ether];
-        _pokLevel = [5, 5];
-        _pokCanEvolve = [false, false];
-        _pokStunned = [false, false];
-        _pokEvolvesTo.push("Tapu Koko");
-        _pokEvolvesTo.push("Tapu Lele");
-        _pokTimesCanBreed = [0, 0];
-        _pokGeneration = [0, 0];
-        _pokBreedsTo.push("Tapu Koko");
-        _pokBreedsTo.push("Tapu Lele");
-        _totalNumPokemon = 2;
+
+        defineSpecies("Tapu Koko", "Electric", "Tapu Koko", "Tapu Koko", 0);
+        defineSpecies("Tapu Lele", "Fairy", "Tapu Lele", "Tapu Lele", 0);
+        addPokemon("Tapu Koko", 1 ether, true, 5);
+        addPokemon("Tapu Koko", 1 ether, true, 5);
     }
 
     receive () external payable {
@@ -71,28 +60,33 @@ contract Cryptomon {
         return _pokOwner[id];
     }
 
+    function defineSpecies(
+        bytes32 name, bytes32 speciesType, bytes32 evolvesTo, bytes32 breedsTo, uint8 timesCanBreed
+    ) public adminOnly() {
+        _speciesType[name] = speciesType;
+        _speciesEvolvesTo[name] = evolvesTo;
+        _speciesBreedsTo[name] = breedsTo;
+        _speciesTimesCanBreed[name] = timesCanBreed;
+    }
+
     function addPokemon(
         bytes32 species,
-        bytes32 pokemonType,
         uint price,
-        uint8 level,
-        bytes32 evolvesTo,
-        uint8 timesCanBreed,
-        bytes32 breedsTo
+        bool forSale,
+        uint8 level
     ) public adminOnly() returns (uint idOfNewPokemon) {
+        require(_speciesType[species] != 0, "The type for this species hasn't been defined");
+        require(_speciesEvolvesTo[species] != 0, "The next evolution for this species hasn't been defined");
+        require(_speciesBreedsTo[species] != 0, "The first evolution on birth for this species hasn't been defined");
         _totalNumPokemon += 1;
-        _pokSpecies.push(species);
-        _pokType.push(pokemonType);
         _pokOwner.push(_admin);
-        _pokForSale.push(false);
+        _pokForSale.push(forSale);
         _pokPrice.push(price);
         _pokLevel.push(level);
         _pokCanEvolve.push(false);
         _pokStunned.push(false);
-        _pokEvolvesTo.push(evolvesTo);
-        _pokTimesCanBreed.push(timesCanBreed);
+        _pokTimesCanBreed.push(_speciesTimesCanBreed[species]);
         _pokGeneration.push(0);
-        _pokBreedsTo.push(breedsTo);
         assert(_pokSpecies.length == _totalNumPokemon);
         assert(_pokOwner.length == _totalNumPokemon);
         return _totalNumPokemon - 1;
@@ -147,7 +141,7 @@ contract Cryptomon {
         require(_pokCanEvolve[id], "This pokemon is not ready to evolve");
         _pokCanEvolve[id] = false;
         _pokStunned[id] = false;
-        _pokSpecies[id] = _pokEvolvesTo[id]; // TODO: what to set _pokEvolvesTo?
+        _pokSpecies[id] = _speciesEvolvesTo[_pokSpecies[id]];
     }
 
     function revive(uint id) external payable checkPokemonId(id) checkOwnsPokemon(id) {
@@ -160,21 +154,8 @@ contract Cryptomon {
     function breed(uint id) external checkPokemonId(id) checkOwnsPokemon(id) returns (uint newId){
         require(_pokTimesCanBreed[id] > 0, "This pokemon cannot or can no longer breed");
         _pokTimesCanBreed[id] -= 1;
-        // TODO: refactor
-        _totalNumPokemon += 1;
-        _pokSpecies.push(_pokBreedsTo[id]);
-        _pokType.push(_pokType[id]);
-        _pokOwner.push(msg.sender);
-        _pokForSale.push(false);
-        _pokPrice.push(0);
-        _pokLevel.push(1);
-        _pokCanEvolve.push(false);
-        _pokStunned.push(false);
-        _pokEvolvesTo.push(_pokEvolvesTo[id]); // TODO
-        _pokTimesCanBreed.push(2);
-        _pokGeneration.push(_pokGeneration[id] + 1);
-        _pokBreedsTo.push(_pokBreedsTo[id]);
-        return _totalNumPokemon - 1;
+        newId = addPokemon(_speciesBreedsTo[_pokSpecies[id]], 0, false, 1);
+        return newId;
     }
 
     function checkBalance() external view returns (uint balance) {
