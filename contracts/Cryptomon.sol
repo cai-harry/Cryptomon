@@ -43,13 +43,16 @@ contract Cryptomon {
     }
 
     constructor() public {
-        // TODO: refactor
         _admin = msg.sender;
+    }
 
+    function addInitialPokemon() external adminOnly() returns (uint numPokemon){
+        require(_totalNumPokemon == 0, "Pokemon have already been added");
         defineSpecies("Tapu Koko", "Electric", "Tapu Koko", "Tapu Koko", 0);
         defineSpecies("Tapu Lele", "Fairy", "Tapu Lele", "Tapu Lele", 0);
         addPokemon("Tapu Koko", 1 ether, true, 5);
         addPokemon("Tapu Koko", 1 ether, true, 5);
+        return _totalNumPokemon;
     }
 
     receive () external payable {

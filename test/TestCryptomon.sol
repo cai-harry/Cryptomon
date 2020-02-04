@@ -28,31 +28,31 @@ contract TestCryptomon {
 
     modifier asAdmin() {
         mon = new Cryptomon();
-        require(mon._admin() == address(this));
+
+        require(mon._admin() == address(this), "Should run this test as admin");
         _;
     }
 
     modifier asNormalUser() {
         mon = Cryptomon(DeployedAddresses.Cryptomon());
-        require(mon._admin() != address(this));
+        require(mon._admin() != address(this), "Should run this test as not an admin");
         _;
     }
 
-    function testConstructor() public asAdmin() {
-        address admin = mon._admin();
-
-        Assert.equal(admin, address(this), "Admin should be the contract creator");
+    function testAddInitialPokemon() public asAdmin() {
+        uint numAdded = mon.addInitialPokemon();
+        Assert.isTrue(numAdded > 0, "Failed to add any initial pokemon");
+        Assert.isTrue(mon._totalNumPokemon() > 0, "Claimed to, but failed to, add any initial pokemon");
     }
 
-    function testDefineSpecies() public asAdmin() {
+    function testDefineSpeciesAddPokemon() public asAdmin() {
         mon.defineSpecies("Mimikyu", "Dark", "Mimikyu", "Mimikyu", 2);
         Assert.equal(mon._speciesType("Mimikyu"), "Dark", "Species type not set correctly");
         Assert.equal(mon._speciesEvolvesTo("Mimikyu"), "Mimikyu", "Species evolution not set correctly");
         Assert.equal(mon._speciesBreedsTo("Mimikyu"), "Mimikyu", "Species breeding not set correctly");
         Assert.equal(uint(mon._speciesTimesCanBreed("Mimikyu")), 2, "Species times can breed not set correctly");
-    }
-
-    function testAddPokemon() public asAdmin() {
+        
+        
         uint id = mon.addPokemon(
             "Mimikyu",
             0.1 ether,
@@ -92,17 +92,17 @@ contract TestCryptomon {
         }
     }
 
-    function testEvolve() public asNormalUser() {
-        // TODO
-    }
+    // function testEvolve() public asNormalUser() {
+    //     // TODO
+    // }
 
-    function testRevive() public asNormalUser() {
-        // TODO
-    }
+    // function testRevive() public asNormalUser() {
+    //     // TODO
+    // }
 
-    function testBreed() public asNormalUser() {
-        // TODO
-    }
+    // function testBreed() public asNormalUser() {
+    //     // TODO
+    // }
 
     function testWithdrawFunds() public asNormalUser() {
         address(mon).transfer(0.1 ether);

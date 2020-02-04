@@ -94,12 +94,11 @@ module.exports = {
       version: ">=0.6.1",
       // docker: true,        
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
-      //  optimizer: {
-      //    enabled: false,
-      //    runs: 200
-      //  },
-      // evmVersion: "byzantium"
-      // }
+       optimizer: {
+         enabled:true,
+         runs: 50
+       },
+      evmVersion: "byzantium"
     }
   }
 
