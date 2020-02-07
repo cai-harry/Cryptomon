@@ -4,12 +4,6 @@ import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
 import "../contracts/Cryptomon.sol";
 
-// contract MockClient {
-//     function buy(address cryptomon, address id) public {
-//         uint price = cryptomon._pokPrice(id);
-//         cryptomon.buyPokemon.value(price)(id);
-//     }
-// }
 
 contract TestCryptomon {
 
@@ -40,21 +34,19 @@ contract TestCryptomon {
     // }
 
     // function testAddInitialPokemon() public asAdmin() {
-    //     uint numAdded = mon.addInitialPokemon();
-    //     Assert.isTrue(numAdded > 0, "Failed to add any initial pokemon");
-    //     Assert.isTrue(mon._totalNumPokemon() > 0, "Claimed to, but failed to, add any initial pokemon");
+    //     mon.addInitialPokemon();
+    //     Assert.isTrue(mon._totalNumPokemon() > 0, "Didn't add any initial Pokemon");
     // }
 
     // function testDefineSpeciesAddPokemon() public asAdmin() {
-    //     mon.defineSpecies("Mimikyu", "Dark", "Mimikyu", "Mimikyu", 2);
-    //     Assert.equal(mon._speciesType("Mimikyu"), "Dark", "Species type not set correctly");
-    //     Assert.equal(mon._speciesEvolvesTo("Mimikyu"), "Mimikyu", "Species evolution not set correctly");
-    //     Assert.equal(mon._speciesBreedsTo("Mimikyu"), "Mimikyu", "Species breeding not set correctly");
-    //     Assert.equal(uint(mon._speciesTimesCanBreed("Mimikyu")), 2, "Species times can breed not set correctly");
-        
+    //     mon.defineSpecies(11, 15, 11, 11, 2);
+    //     Assert.equal(uint(mon._speciesType(11)), 15, "Species type not set correctly");
+    //     Assert.equal(uint(mon._speciesEvolvesTo(11)), 11, "Species evolution not set correctly");
+    //     Assert.equal(uint(mon._speciesBreedsTo(11)), 11, "Species breeding not set correctly");
+    //     Assert.equal(uint(mon._speciesTimesCanBreed(11)), 2, "Species times can breed not set correctly");
         
     //     uint id = mon.addPokemon(
-    //         "Mimikyu",
+    //         11,
     //         100 finney,
     //         true,
     //         3

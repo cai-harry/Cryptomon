@@ -4,28 +4,29 @@ contract Cryptomon {
     address public _admin;
 
     uint public _totalNumPokemon;
-    bytes32[] public _pokSpecies;
+    uint16[] public _pokSpeciesId;
     address[] public _pokOwner;
     bool[] public _pokForSale;
     uint[] public _pokPrice;
     uint8[] public _pokLevel;
     bool[] public _pokCanEvolve;
     bool[] public _pokStunned;
-    bytes32[] public _pokEvolvesTo;
     uint8[] public _pokTimesCanBreed;
     uint[] public _pokGeneration;
-    bytes32[] public _pokBreedsTo;
 
-    mapping(bytes32 => bytes32) public _speciesType;
-    mapping(bytes32 => bytes32) public _speciesEvolvesTo;
-    mapping(bytes32 => bytes32) public _speciesBreedsTo;
-    mapping(bytes32 => uint8) public _speciesTimesCanBreed;
+    mapping(uint16 => uint8) public _speciesType;
+    mapping(uint16 => uint16) public _speciesEvolvesTo;
+    mapping(uint16 => uint16) public _speciesBreedsTo;
+    mapping(uint16 => uint8) public _speciesTimesCanBreed;
 
     mapping (address => uint) public _pendingWithdrawals;
 
     uint public _revivePrice = 10 finney;
 
-    event Purchase(address from, address to, uint id, uint amount);
+    event SpeciesDefined(uint16 speciesId);
+    event PokemonAdded(uint pokId);
+    event Purchase(address seller, address buyer, uint id, uint amount);
+    event ListedForSale(uint id, uint amount);
 
     modifier adminOnly() {
         require(msg.sender == _admin, "Only game admin can call this function.");
@@ -44,15 +45,27 @@ contract Cryptomon {
 
     constructor() public {
         _admin = msg.sender;
+        _totalNumPokemon = 0;
     }
 
-    function addInitialPokemon() external adminOnly() returns (uint numPokemon){
+    function addInitialPokemon() external adminOnly() {
         require(_totalNumPokemon == 0, "Pokemon have already been added");
-        defineSpecies("Tapu Koko", "Electric", "Tapu Koko", "Tapu Koko", 0);
-        defineSpecies("Tapu Lele", "Fairy", "Tapu Lele", "Tapu Lele", 0);
-        addPokemon("Tapu Koko", 1 ether, true, 5);
-        addPokemon("Tapu Koko", 1 ether, true, 5);
-        return _totalNumPokemon;
+        defineSpecies(
+            1, // Species: Tapu Koko 
+            4, // Type: Electric 
+            1, // Evolves to
+            1, // Breeds to
+            0 // Times can breed
+        );
+        defineSpecies(
+            2, // Species: Tapu Lele
+            17, // Type: Fairy
+            2, 
+            2, 
+            0
+        );
+        addPokemon(1, 1 ether, true, 5);
+        addPokemon(2, 1 ether, true, 5);
     }
 
     receive () external payable {
@@ -64,24 +77,26 @@ contract Cryptomon {
     }
 
     function defineSpecies(
-        bytes32 name, bytes32 speciesType, bytes32 evolvesTo, bytes32 breedsTo, uint8 timesCanBreed
+        uint16 speciesId, uint8 speciesType, uint16 evolvesTo, uint16 breedsTo, uint8 timesCanBreed
     ) public adminOnly() {
-        _speciesType[name] = speciesType;
-        _speciesEvolvesTo[name] = evolvesTo;
-        _speciesBreedsTo[name] = breedsTo;
-        _speciesTimesCanBreed[name] = timesCanBreed;
+        _speciesType[speciesId] = speciesType;
+        _speciesEvolvesTo[speciesId] = evolvesTo;
+        _speciesBreedsTo[speciesId] = breedsTo;
+        _speciesTimesCanBreed[speciesId] = timesCanBreed;
+        emit SpeciesDefined(speciesId);
     }
 
     function addPokemon(
-        bytes32 species,
+        uint16 species,
         uint price,
         bool forSale,
         uint8 level
-    ) public adminOnly() returns (uint idOfNewPokemon) {
+    ) public adminOnly() {
         require(_speciesType[species] != 0, "The type for this species hasn't been defined");
         require(_speciesEvolvesTo[species] != 0, "The next evolution for this species hasn't been defined");
         require(_speciesBreedsTo[species] != 0, "The first evolution on birth for this species hasn't been defined");
         _totalNumPokemon += 1;
+        _pokSpeciesId.push(species);
         _pokOwner.push(_admin);
         _pokForSale.push(forSale);
         _pokPrice.push(price);
@@ -90,16 +105,14 @@ contract Cryptomon {
         _pokStunned.push(false);
         _pokTimesCanBreed.push(_speciesTimesCanBreed[species]);
         _pokGeneration.push(0);
-        assert(_pokSpecies.length == _totalNumPokemon);
-        assert(_pokOwner.length == _totalNumPokemon);
-        return _totalNumPokemon - 1;
+        emit PokemonAdded(_totalNumPokemon - 1);
     }
 
     function setRevivePrice(uint price) external adminOnly() {
         _revivePrice = price;
     }
 
-    function buyPokemon(uint id) external payable checkPokemonId(id) returns (uint) {
+    function buyPokemon(uint id) external payable checkPokemonId(id) {
         require(_pokOwner[id] != msg.sender, "You already own this pokemon");
         require(_pokPrice[id] == msg.value, "No payment received or wrong payment amount");
         require(_pokForSale[id], "This pokemon is not for sale");
@@ -109,16 +122,15 @@ contract Cryptomon {
         _pokForSale[id] = false;
         _pokPrice[id] = 0;
         emit Purchase(seller, msg.sender, id, msg.value);
-        return id;
     }
 
     function sellPokemon(uint id, uint amount) external checkPokemonId(id) checkOwnsPokemon(id) {
         _pokForSale[id] = true;
         _pokPrice[id] = amount;
+        emit ListedForSale(id, amount);
     }
 
-    function fight(uint usingId, uint againstId) external checkPokemonId(usingId) checkPokemonId(againstId) checkOwnsPokemon(usingId) 
-    returns (bool win) {
+    function fight(uint usingId, uint againstId) external checkPokemonId(usingId) checkPokemonId(againstId) checkOwnsPokemon(usingId) {
         require(!_pokStunned[usingId], "This pokemon is stunned");
         uint8 rand = random();
         uint8 advantage = _pokLevel[usingId] - _pokLevel[againstId];
@@ -126,25 +138,22 @@ contract Cryptomon {
         uint winner;
         uint loser;
         if (rand >= winThreshold) {
-            win = true;
             winner = usingId;
             loser = againstId;
         } else {
-            win = false;
             winner = againstId;
             loser = usingId;
         }
         _pokLevel[winner] += 1;
         _pokCanEvolve[winner] = true;
         _pokStunned[loser] = true;
-        return win;
     }
 
     function evolve(uint id) external checkPokemonId(id) checkOwnsPokemon(id) {
         require(_pokCanEvolve[id], "This pokemon is not ready to evolve");
         _pokCanEvolve[id] = false;
         _pokStunned[id] = false;
-        _pokSpecies[id] = _speciesEvolvesTo[_pokSpecies[id]];
+        _pokSpeciesId[id] = _speciesEvolvesTo[_pokSpeciesId[id]];
     }
 
     function revive(uint id) external payable checkPokemonId(id) checkOwnsPokemon(id) {
@@ -154,24 +163,22 @@ contract Cryptomon {
         _pokStunned[id] = false;
     }
 
-    function breed(uint id) external checkPokemonId(id) checkOwnsPokemon(id) returns (uint newId){
+    function breed(uint id) external checkPokemonId(id) checkOwnsPokemon(id) {
         require(_pokTimesCanBreed[id] > 0, "This pokemon cannot or can no longer breed");
         _pokTimesCanBreed[id] -= 1;
-        newId = addPokemon(_speciesBreedsTo[_pokSpecies[id]], 0, false, 1);
-        return newId;
+        addPokemon(_speciesBreedsTo[_pokSpeciesId[id]], 0, false, 1);
     }
 
     function checkBalance() external view returns (uint balance) {
         return _pendingWithdrawals[msg.sender];
     }
 
-    function withdrawFunds() external returns (uint balanceTransferred) {
+    function withdrawFunds() external {
         require(_pendingWithdrawals[msg.sender] > 0, "You do not have any funds to withdraw");
         uint amount = _pendingWithdrawals[msg.sender];
         _pendingWithdrawals[msg.sender] = 0;
         address payable recipient = msg.sender;
         recipient.transfer(amount);
-        return amount;
     }
 
     function random() private view returns (uint8) {

@@ -6,70 +6,90 @@ contract("Cryptomon", accounts => {
         let owner = await contract._admin.call();
         assert.equal(owner, accounts[0]);
 
-        let numAdded = await contract.addInitialPokemon();
-        let numPokemon = await contract._totalNumPokemon.call();
-        assert.equal(numAdded, numPokemon);
+        await contract.addInitialPokemon();
+        let numPokemon = parseInt(await contract._totalNumPokemon.call());
         assert.equal(numPokemon, 2);
 
-        let firstPokemonSpecies = web3.utils.hexToUtf8(
-            await contract._pokSpecies.call(0));
-        assert.equal(firstPokemonSpecies, "Tapu Koko");
+        let firstPokemonSpecies = parseInt(
+            await contract._pokSpeciesId.call(0));
+        assert.equal(firstPokemonSpecies, 1);
     });
 
     it("int test, admin adding new species and cards", async () => {
         let contract = await Cryptomon.deployed();
-        let result1 = await contract.defineSpecies.call(
-            web3.utils.utf8ToHex("Mimikyu"),    // species
-            web3.utils.utf8ToHex("Dark"),       // type
-            web3.utils.utf8ToHex("Mimikyu"),    // evolvesTo
-            web3.utils.utf8ToHex("Mimikyu"),    // breedsTo
-            2,                                  // timesCanBreed
+        let specDefReceipt = await contract.defineSpecies.sendTransaction(
+            11,    // species
+            15,    // type
+            11,    // evolvesTo
+            11,    // breedsTo
+            2,     // timesCanBreed
             { from: accounts[0] }
-        )
-        let result2 = await contract.addPokemon.call(
-            web3.utils.utf8ToHex("Mimikyu"),    // species
+        );
+        let pokAddReceipt = await contract.addPokemon.sendTransaction(
+            11,                                 // species
             web3.utils.toWei('0.1', "ether"),   // price
             true,                               // forSale
             3,                                  // level
             { from: accounts[0] }
         );
-        let id = result2.toNumber();
-        assert.equal(id, 2);
-        let newPokemonOwner = debug(await contract.getOwner.call(id));
+
+        let newId = parseInt(await contract._totalNumPokemon.call()) - 1;
+        let newPokemonOwner = await contract.getOwner.call(newId);
         assert.equal(newPokemonOwner, accounts[0]);
-        let newPokemonSpecies = await contract._pokSpecies.call(2);
-        assert.equal(newPokemonSpecies, "Mimikyu");
+        let newPokemonSpecies = await contract._pokSpeciesId.call(2);
+        assert.equal(newPokemonSpecies, 11);
     });
 
     it("int test buying and selling pokemon", async () => {
         let contract = await Cryptomon.deployed();
         let id = 1;
         let price = web3.utils.toWei('1', 'ether');
-        let resultBuy = await contract.buyPokemon.call(id, {from:accounts[1], value:price});
-        let idBought = resultBuy.toNumber();
-        assert.equal(idBought, id);
-        let newOwner = await contract._pokOwner.call(idBought);
+        await contract.buyPokemon.sendTransaction(id, {from:accounts[1], value:price});
+        
+        let newOwner = await contract._pokOwner.call(id);
         assert.equal(newOwner, accounts[1]);
         
-        let resultSell = await contract.buyPokemon.call(id, {from:accounts[1], value:price});
-        let resultBuy2 = await contract.buyPokemon.call(id, {from:accounts[2], value:price});
-        let newOwner2 = await contract._pokOwner.call(idBought);
+        let newPrice = web3.utils.toWei('2', 'ether');
+
+        console.log("about to sell");
+
+        await contract.sellPokemon.sendTransaction(id, newPrice, {from:accounts[1]});
+        let forSale = await contract._pokForSale.call(id);
+        let listedPrice = parseInt(await contract._pokPrice.call(id));
+        assert.ok(forSale);
+        assert.equal(listedPrice, newPrice);
+
+        console.log("about to buy off player1");
+
+        await contract.buyPokemon.sendTransaction(id, {from:accounts[2], value:newPrice});
+        
+        newOwner = await contract._pokOwner.call(id);
         assert.equal(newOwner, accounts[2]);
     });
 
     it("int test depositing and withdrawing funds", async () => {
         let contract = await Cryptomon.deployed();
-        let balanceBefore = parseInt(await web3.eth.getBalance(accounts[1]));
+        let balanceBefore = parseInt(await web3.eth.getBalance(accounts[2]));
         let amount = parseInt(web3.utils.toWei('100', 'finney'));
-        let result = await contract.sendTransaction({from:accounts[1], value:amount});
-        let balanceInContract = parseInt(await contract.checkBalance.call({from:accounts[1]}));
+        let result = await contract.sendTransaction({from:accounts[2], value:amount});
+        let balanceInContract = parseInt(await contract.checkBalance.call({from:accounts[2]}));
         assert.equal(balanceInContract, amount);
-        let balanceAfter = parseInt(await web3.eth.getBalance(accounts[1]));
+        let balanceAfter = parseInt(await web3.eth.getBalance(accounts[2]));
         assert.isAtLeast(balanceBefore, balanceAfter + amount); // not testing for equality because gas
 
-        let result2 = await contract.withdrawFunds.call({from: accounts[1]});
-        let balanceFinal = parseInt(await web3.eth.getBalance(accounts[1]));
+        let result2 = await contract.withdrawFunds.sendTransaction({from: accounts[2]});
+        let balanceFinal = parseInt(await web3.eth.getBalance(accounts[2]));
         assert.isAtLeast(balanceFinal, balanceAfter);
+    });
+
+    after("tidying up", async () => {
+        let contract = await Cryptomon.deployed();
+        for (let i = 0; i < accounts.length; i++) {
+            let balance = parseInt(await contract.checkBalance.call({from: accounts[i]}));
+            if (balance > 0) {
+                await contract.withdrawFunds.sendTransaction({from: accounts[i]});
+            }
+        }
     });
 
 
