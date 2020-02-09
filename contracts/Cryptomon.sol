@@ -27,6 +27,7 @@ contract Cryptomon {
     event PokemonAdded(uint pokId);
     event Purchase(address seller, address buyer, uint id, uint amount);
     event ListedForSale(uint id, uint amount);
+    event Fight(uint attacker, uint defender, uint8 rand, uint8 winRate256, uint winner);
 
     modifier adminOnly() {
         require(msg.sender == _admin, "Only game admin can call this function.");
@@ -130,23 +131,29 @@ contract Cryptomon {
         emit ListedForSale(id, amount);
     }
 
-    function fight(uint usingId, uint againstId) external checkPokemonId(usingId) checkPokemonId(againstId) checkOwnsPokemon(usingId) {
-        require(!_pokStunned[usingId], "This pokemon is stunned");
+    function fight(uint attacker, uint defender) external checkPokemonId(attacker) checkPokemonId(defender) checkOwnsPokemon(attacker) {
+        require(!_pokStunned[attacker], "This pokemon is stunned");
         uint8 rand = random();
-        uint8 advantage = _pokLevel[usingId] - _pokLevel[againstId];
-        uint8 winThreshold = 4 + advantage;
+        uint8 advantage = _pokLevel[attacker] - _pokLevel[defender]; // +4 => certain win, -4 => certain loss
+        uint8 winRate256 = 2 ** (4 + advantage) - 1; // 256 => 100% win rate
         uint winner;
         uint loser;
-        if (rand >= winThreshold) {
-            winner = usingId;
-            loser = againstId;
+        if (rand <= winRate256) {
+            winner = attacker;
+            loser = defender;
         } else {
-            winner = againstId;
-            loser = usingId;
+            winner = defender;
+            loser = attacker;
         }
-        _pokLevel[winner] += 1;
-        _pokCanEvolve[winner] = true;
+        if (_pokLevel[winner] < 5) {
+            _pokLevel[winner] += 1;
+        }
+        if (_speciesEvolvesTo[_pokSpeciesId[winner]] != _pokSpeciesId[winner]) {
+            _pokCanEvolve[winner] = true;
+        }
         _pokStunned[loser] = true;
+
+        emit Fight(attacker, defender, rand, winRate256, winner);
     }
 
     function evolve(uint id) external checkPokemonId(id) checkOwnsPokemon(id) {

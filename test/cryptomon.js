@@ -1,5 +1,7 @@
 const Cryptomon = artifacts.require("Cryptomon");
 
+// TODO: a proper story going through every path
+
 contract("Cryptomon", accounts => {
     it("int test, admin setup", async () => {
         let contract = await Cryptomon.deployed();
@@ -51,15 +53,11 @@ contract("Cryptomon", accounts => {
         
         let newPrice = web3.utils.toWei('2', 'ether');
 
-        console.log("about to sell");
-
         await contract.sellPokemon.sendTransaction(id, newPrice, {from:accounts[1]});
         let forSale = await contract._pokForSale.call(id);
         let listedPrice = parseInt(await contract._pokPrice.call(id));
         assert.isOk(forSale);
         assert.equal(listedPrice, newPrice);
-
-        console.log("about to buy off player1");
 
         await contract.buyPokemon.sendTransaction(id, {from:accounts[2], value:newPrice});
         
