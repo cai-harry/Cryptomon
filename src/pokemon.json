@@ -3,7 +3,6 @@
     "id": 0,
     "name": "Tapu Koko",
     "picture": "images/tapukoko.png",
-    "age": 1,
     "type": "Electric",
     "evolvesTo": "Tapu Koko"
   },
@@ -11,7 +10,6 @@
     "id": 1,
     "name": "Stufful",
     "picture": "images/stufful.png",
-    "age": 2,
     "type": "Normal",
     "evolvesTo": "Bewear"
   },
@@ -19,7 +17,6 @@
     "id": 2,
     "name": "Bewear",
     "picture": "images/bewear.png",
-    "age": 3,
     "type": "Normal",
     "evolvesTo": "Bewear"
   },
@@ -27,7 +24,6 @@
     "id": 3,
     "name": "Rowlet",
     "picture": "images/rowlet.png",
-    "age": 1,
     "type": "Grass",
     "evolvesTo": "Dartrix"
   },
@@ -35,7 +31,6 @@
     "id": 4,
     "name": "Dartrix",
     "picture": "images/dartrix.png",
-    "age": 2,
     "type": "Grass",
     "evolvesTo": "Decidueye"
   },
@@ -43,7 +38,6 @@
     "id": 5,
     "name": "Decidueye",
     "picture": "images/decidueye.png",
-    "age": 3,
     "type": "Grass",
     "evolvesTo": "Decidueye"
   },
@@ -51,7 +45,6 @@
     "id": 6,
     "name": "Rockruff",
     "picture": "images/rockruff.png",
-    "age": 1,
     "type": "Rock",
     "evolvesTo": "Lycanroc"
   },
@@ -59,7 +52,6 @@
     "id": 7,
     "name": "Lycanroc",
     "picture": "images/lycanroc_midday_form.png",
-    "age": 2,
     "type": "Rock",
     "evolvesTo": "Lycanroc"
   },
@@ -67,7 +59,6 @@
     "id": 8,
     "name": "Litten",
     "picture": "images/litten.png",
-    "age": 1,
     "type": "Fire",
     "evolvesTo": "Torracat"
   },
@@ -75,7 +66,6 @@
     "id": 9,
     "name": "Torracat",
     "picture": "images/torracat.png",
-    "age": 2,
     "type": "Fire",
     "evolvesTo": "Incineroar"
   },
@@ -83,7 +73,6 @@
     "id": 10,
     "name": "Incineroar",
     "picture": "images/incineroar.png",
-    "age": 3,
     "type": "Fire",
     "evolvesTo": "Incineroar"
   },
@@ -91,7 +80,6 @@
     "id": 11,
     "name": "Mimikyu",
     "picture": "images/mimikyu.png",
-    "age": 3,
     "type": "Ghost",
     "evolvesTo": "Mimikyu"
   }

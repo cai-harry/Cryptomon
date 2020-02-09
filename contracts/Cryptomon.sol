@@ -189,6 +189,7 @@ contract Cryptomon {
     }
 
     function random() private view returns (uint8) {
+        // TODO: find a better way to do this
         return uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty))) % 251);
     }
 

@@ -25,18 +25,23 @@
       <div class="col-xs-12 col-sm-8 col-sm-push-2">
         <h1 class="text-center">Cryptomon</h1>
         <hr />
-        Image credits <a href="https://www.pokemon-sunmoon.com/">Pokemon Sun Moon by Nintendo</a>
+        <strong>Account</strong>: <span class="account-num">?</span> <br />
+        <strong>Balance</strong>: <span class="pok-type">?</span> ETH
+        <button class="btn btn-default btn-withdraw" type="button" data-id="0">Withdraw</button>
         <hr />
         <br />
       </div>
     </div>
 
-    <div id="petsRow" class="row">
-      <!-- PETS LOAD HERE -->
+    <div id="pokRow" class="row">
+      <!-- CARDS LOAD HERE -->
     </div>
+    <hr />
+    Harry Cai, CID 01753895 <br />
+    Image credits <a href="https://www.pokemon-sunmoon.com/">Pokemon Sun Moon by Nintendo</a>
   </div>
 
-  <div id="petTemplate" style="display: none;">
+  <div id="pokTemplate" style="display: none;">
     <div class="col-sm-6 col-md-4 col-lg-3">
       <div class="panel panel-default panel-pokemon">
         <div class="panel-heading">
@@ -46,14 +51,21 @@
           <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;"
             src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
           <br /><br />
-          <strong>Type</strong>: <span class="pet-type">?</span><br />
-          <strong>Age</strong>: <span class="pet-age">?</span><br />
-          <strong>Evolves to</strong>: <span class="pet-evolves-to">?</span><br /><br />
+          <strong>Type</strong>: <span class="pok-type">?</span><br />
+          <strong>Level</strong>: <span class="pok-level">?</span><br />
+          <strong>First Evolution</strong>: <span class="pok-breeds-to">?</span><br />
+          <strong>Next Evolution</strong>: <span class="pok-evolves-to">?</span><br /><br />
           <button class="btn btn-default btn-buy" type="button" data-id="0">Buy</button>
+          <button class="btn btn-default btn-sell" type="button" data-id="0">Sell</button>
+          <button class="btn btn-default btn-fight" type="button" data-id="0">Fight</button>
+          <button class="btn btn-default btn-evolve" type="button" data-id="0">Evolve</button>
+          <button class="btn btn-default btn-revive" type="button" data-id="0">Revive</button>
+          <button class="btn btn-default btn-breed" type="button" data-id="0">Breed</button>
         </div>
       </div>
     </div>
   </div>
+  
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>

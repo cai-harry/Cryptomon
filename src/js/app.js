@@ -3,22 +3,22 @@ App = {
   contracts: {},
 
   init: async function () {
-    // Load pets.
-    $.getJSON('../pokemon.json', function (data) {
-      var petsRow = $('#petsRow');
-      var petTemplate = $('#petTemplate');
+    // Load cards.
+    let data = await $.getJSON('../pokemon.json');
 
-      for (i = 0; i < data.length; i++) {
-        petTemplate.find('.panel-title').text(data[i].name);
-        petTemplate.find('img').attr('src', data[i].picture);
-        petTemplate.find('.pet-type').text(data[i].type);
-        petTemplate.find('.pet-age').text(data[i].age);
-        petTemplate.find('.pet-evolves-to').text(data[i].evolvesTo);
-        petTemplate.find('.btn-buy').attr('data-id', data[i].id);
+    var pokRow = $('#pokRow');
+    var pokTemplate = $('#pokTemplate');
 
-        petsRow.append(petTemplate.html());
-      }
-    });
+    for (i = 0; i < data.length; i++) {
+      pokTemplate.find('.panel-title').text(data[i].name);
+      pokTemplate.find('img').attr('src', data[i].picture);
+      pokTemplate.find('.pok-type').text(data[i].type);
+      pokTemplate.find('.pok-level').text(data[i].age);
+      pokTemplate.find('.pok-evolves-to').text(data[i].evolvesTo);
+      pokTemplate.find('.btn-buy').attr('data-id', data[i].id);
+
+      pokRow.append(pokTemplate.html());
+    };
 
     return await App.initWeb3();
   },
@@ -127,9 +127,9 @@ App = {
         cryptomonInstance = instance;
 
         // Execute purchase as a transaction by sending account
-        return cryptomonInstance.price(pokemonId).then(function(price){
+        return cryptomonInstance.price(pokemonId).then(function (price) {
           console.log(parseInt(price));
-          return cryptomonInstance.buyPokemon(pokemonId, { from: account , value: parseInt(price)});
+          return cryptomonInstance.buyPokemon(pokemonId, { from: account, value: parseInt(price) });
         })
       }).then(function (result) {
         return App.markBought();
