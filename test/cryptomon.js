@@ -17,7 +17,7 @@ contract("Cryptomon", accounts => {
 
     it("int test, admin adding new species and cards", async () => {
         let contract = await Cryptomon.deployed();
-        let specDefReceipt = await contract.defineSpecies.sendTransaction(
+        await contract.defineSpecies.sendTransaction(
             11,    // species
             15,    // type
             11,    // evolvesTo
@@ -25,11 +25,11 @@ contract("Cryptomon", accounts => {
             2,     // timesCanBreed
             { from: accounts[0] }
         );
-        let pokAddReceipt = await contract.addPokemon.sendTransaction(
+        await contract.addPokemon.sendTransaction(
             11,                                 // species
             web3.utils.toWei('0.1', "ether"),   // price
             true,                               // forSale
-            3,                                  // level
+            1,                                  // level
             { from: accounts[0] }
         );
 
@@ -42,8 +42,8 @@ contract("Cryptomon", accounts => {
 
     it("int test buying and selling pokemon", async () => {
         let contract = await Cryptomon.deployed();
-        let id = 1;
-        let price = web3.utils.toWei('1', 'ether');
+        let id = 2;
+        let price = web3.utils.toWei('0.1', 'ether');
         await contract.buyPokemon.sendTransaction(id, {from:accounts[1], value:price});
         
         let newOwner = await contract._pokOwner.call(id);
@@ -56,7 +56,7 @@ contract("Cryptomon", accounts => {
         await contract.sellPokemon.sendTransaction(id, newPrice, {from:accounts[1]});
         let forSale = await contract._pokForSale.call(id);
         let listedPrice = parseInt(await contract._pokPrice.call(id));
-        assert.ok(forSale);
+        assert.isOk(forSale);
         assert.equal(listedPrice, newPrice);
 
         console.log("about to buy off player1");
@@ -65,6 +65,22 @@ contract("Cryptomon", accounts => {
         
         newOwner = await contract._pokOwner.call(id);
         assert.equal(newOwner, accounts[2]);
+    });
+
+    it("int test fighting and reviving", async () => {
+        let contract = await Cryptomon.deployed();
+
+        // lv 5 Tapu Koko vs lv 1 Mimikyu, guaranteed win
+        await contract.fight.sendTransaction(0, 2, {from:accounts[0]});
+        assert.isOk(await contract._pokStunned.call(2));
+
+        let revivePrice = web3.utils.toWei('0.01', 'ether');
+        await contract.revive.sendTransaction(2, {from:accounts[2], value:revivePrice});
+        assert.isNotOk(await contract._pokStunned.call(2));
+
+        // lv 1 Mimikyu vs lv 5 Tapu Koko, guaranteed loss
+        await contract.fight.sendTransaction(2, 0, {from:accounts[2]});
+        assert.isOk(await contract._pokStunned.call(2));
     });
 
     it("int test depositing and withdrawing funds", async () => {
