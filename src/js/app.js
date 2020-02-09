@@ -69,6 +69,7 @@ App = {
 
   bindEvents: function () {
     $(document).on('click', '.btn-buy', App.handleBought);
+    $(document).on('click', '.btn-withdraw', App.handleWithdraw);
   },
 
   render: async function (buyers, account) {
@@ -158,6 +159,13 @@ App = {
         console.log(err.message);
       });
     });
+  },
+
+  handleWithdraw: async function (event) {
+    event.preventDefault();
+
+    let crt = await App.contracts.Cryptomon.deployed();
+    await crt.withdrawFunds.sendTransaction();
   }
 
 };
