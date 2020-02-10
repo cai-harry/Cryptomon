@@ -3,31 +3,29 @@ App = {
   contracts: {},
 
   init: async function () {
-    // Load cards.
-    let data = await $.getJSON('../pokemon.json');
+    // let data = await $.getJSON('../pokemon.json');
 
-    var pokRow = $('#pokRow');
-    var pokTemplate = $('#pokTemplate');
+    // var pokRow = $('#pokRow');
+    // var pokTemplate = $('#pokTemplate');
 
-    for (i = 0; i < data.length; i++) {
-      pokTemplate.find('.panel-title').text(data[i].name);
-      pokTemplate.find('img').attr('src', data[i].picture);
-      pokTemplate.find('.pok-type').text(data[i].type);
-      pokTemplate.find('.pok-level').text(data[i].age);
-      pokTemplate.find('.pok-evolves-to').text(data[i].evolvesTo);
-      pokTemplate.find('.btn-buy').attr('data-id', data[i].id);
+    // for (i = 0; i < data.length; i++) {
+    //   pokTemplate.find('.panel-title').text(data[i].name);
+    //   pokTemplate.find('img').attr('src', data[i].picture);
+    //   pokTemplate.find('.pok-type').text(data[i].type);
+    //   pokTemplate.find('.pok-level').text(data[i].age);
+    //   pokTemplate.find('.pok-evolves-to').text(data[i].evolvesTo);
+    //   pokTemplate.find('.btn-buy').attr('data-id', data[i].id);
 
-      pokRow.append(pokTemplate.html());
-    };
+    //   pokRow.append(pokTemplate.html());
+    // };
 
     await App.initWeb3();
 
     await App.initContract();
 
-    App.bindEvents();
-
-    // Use our contract to retrieve and mark the purchased Pokemon
     await App.render();
+    
+    App.bindEvents();
   },
 
   initWeb3: async function () {
@@ -74,7 +72,7 @@ App = {
 
   render: async function (buyers, account) {
 
-    let contract = await App.contracts.Cryptomon.deployed();
+    let crt = await App.contracts.Cryptomon.deployed();
 
     // Display account number
     web3.eth.getAccounts( (error, accounts) =>
@@ -86,8 +84,60 @@ App = {
     })
 
     // Display balance owed by contract
-    let balanceOwed = web3.fromWei(await contract.checkBalance.call());
+    let balanceOwed = web3.fromWei(await crt.checkBalance.call());
     document.getElementById("balance").textContent = balanceOwed;
+
+    // Get species index to text conversions
+    let data = await $.getJSON('../pokemon.json');
+
+    // Render cards
+    var pokRow = $('#pokRow');
+    var pokTemplate = $('#pokTemplate');
+    let numPok = await crt._totalNumPokemon.call();
+    for (let id = 0; id < numPok; id++) {
+      // id, gen, species, type, lvl, 1st evo, next evo
+
+      // id
+      pokTemplate.find('.pok-id').text(id);
+
+      let speciesId = parseInt(await crt._pokSpeciesId.call(id));
+      console.log(speciesId);
+      pokTemplate.find('.panel-title').text(data[speciesId].name);
+      pokTemplate.find('.pok-type').text(data[speciesId].type);
+      pokTemplate.find('.pok-evolves-to').text(data[speciesId].evolvesTo);
+      pokTemplate.find('.pok-breeds-to').text(data[speciesId].breedsTo);
+      pokTemplate.find('img').attr('src', data[speciesId].picture);
+
+
+      // TODO: use these instead?
+      // let typeId = parseInt(await crt._speciesType.call(speciesId));
+      // let firstEvoId = parseInt(await crt._speciesBreedsTo.call(speciesId));
+      // let nextEvoId = parseInt(await crt._speciesEvolvesTo.call(speciesId));
+
+      let gen = parseInt(await crt._pokGeneration.call(id));
+      pokTemplate.find('.pok-generation').text(gen);
+
+      let level = parseInt(await crt._pokLevel.call(id));
+      pokTemplate.find('.pok-level').text(level);
+
+      let timesCanBreed = parseInt(await crt._pokTimesCanBreed.call(id));
+      pokTemplate.find('.pok-times-can-breed').text(timesCanBreed);
+
+      let price = web3.fromWei(await crt._pokPrice.call(id));
+      pokTemplate.find('.pok-buy-price').text(price);
+      
+      pokRow.append(pokTemplate.html());
+    }
+
+    // from init()
+    // for (i = 0; i < data.length; i++) {
+    //   pokTemplate.find('.panel-title').text(data[i].name);
+    //   pokTemplate.find('.pok-type').text(data[i].type);
+    //   pokTemplate.find('.pok-level').text(data[i].age);
+    //   pokTemplate.find('.pok-evolves-to').text(data[i].evolvesTo);
+    //   pokTemplate.find('.btn-buy').attr('data-id', data[i].id);
+
+    // };
 
 
     // old stuff
