@@ -72,15 +72,18 @@ App = {
 
   render: async function (buyers, account) {
 
+    var account;
+
     let crt = await App.contracts.Cryptomon.deployed();
 
     // Display account number
     web3.eth.getAccounts( (error, accounts) =>
     {
+      account = accounts[0];
       if (error) {
         console.error(error);
       }
-      document.getElementById("account-num").textContent = accounts[0];
+      document.getElementById("account-num").textContent = account;
     })
 
     // Display balance owed by contract
@@ -95,8 +98,6 @@ App = {
     var pokTemplate = $('#pokTemplate');
     let numPok = await crt._totalNumPokemon.call();
     for (let id = 0; id < numPok; id++) {
-      // id, gen, species, type, lvl, 1st evo, next evo
-
       // id
       pokTemplate.find('.pok-id').text(id);
 
@@ -108,12 +109,15 @@ App = {
       pokTemplate.find('.pok-breeds-to').text(data[speciesId].breedsTo);
       pokTemplate.find('img').attr('src', data[speciesId].picture);
 
-
       // TODO: use these instead?
       // let typeId = parseInt(await crt._speciesType.call(speciesId));
       // let firstEvoId = parseInt(await crt._speciesBreedsTo.call(speciesId));
       // let nextEvoId = parseInt(await crt._speciesEvolvesTo.call(speciesId));
 
+      
+      let owner = await crt._pokOwner.call(id);
+      let userOwnsThis = owner == account;
+      
       let gen = parseInt(await crt._pokGeneration.call(id));
       pokTemplate.find('.pok-generation').text(gen);
 
@@ -125,7 +129,43 @@ App = {
 
       let price = web3.fromWei(await crt._pokPrice.call(id));
       pokTemplate.find('.pok-buy-price').text(price);
-      
+
+      // Fight
+      let stunned = await crt._pokStunned.call(id);
+      if (stunned || !userOwnsThis) {
+        pokTemplate.find('.span-fight').empty();
+      }
+
+      // Evolve
+      let canEvolve = await crt._pokCanEvolve.call(id);
+      if (!canEvolve || !userOwnsThis) {
+        pokTemplate.find('.span-evolve').empty();
+      }
+
+      // Revive
+      if (!stunned || !userOwnsThis) {
+        pokTemplate.find('.span-revive').empty();
+      }
+
+      // Breed
+      if (timesCanBreed <= 0 || !userOwnsThis) {
+        pokTemplate.find('.span-breed').empty();
+      }
+
+      // Buy
+      let forSale = crt._pokForSale.call(id);
+      if (!forSale) {
+        pokTemplate.find('.span-buy').empty();
+      }
+      if(userOwnsThis){
+        pokTemplate.find('.btn-buy').attr('disabled', true);
+      }
+
+      // Sell
+      if (!userOwnsThis) {
+        pokTemplate.find('.span-sell').empty();
+      }
+
       pokRow.append(pokTemplate.html());
     }
 

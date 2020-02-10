@@ -1,86 +1,156 @@
 [
   {
-    "id": 0,
-    "name": "Tapu Koko",
-    "picture": "images/tapukoko.png",
-    "type": "Electric",
-    "evolvesTo": "Tapu Koko"
   },
   {
     "id": 1,
-    "name": "Stufful",
-    "picture": "images/stufful.png",
-    "type": "Normal",
-    "evolvesTo": "Bewear"
+    "name": "Tapu Koko",
+    "picture": "images/tapukoko.png",
+    "type": "Electric",
+    "evolvesTo": "Tapu Koko",
+    "breedsTo": "Tapu Koko"
   },
   {
     "id": 2,
-    "name": "Bewear",
-    "picture": "images/bewear.png",
-    "type": "Normal",
-    "evolvesTo": "Bewear"
+    "name": "Tapu Lele",
+    "picture": "images/tapulele.png",
+    "type": "Fairy",
+    "evolvesTo": "Tapu Lele",
+    "breedsTo": "Tapu Lele"
   },
   {
     "id": 3,
-    "name": "Rowlet",
-    "picture": "images/rowlet.png",
-    "type": "Grass",
-    "evolvesTo": "Dartrix"
+    "name": "Stufful",
+    "picture": "images/stufful.png",
+    "type": "Normal",
+    "evolvesTo": "Bewear",
+    "breedsTo": "Stufful"
   },
   {
     "id": 4,
-    "name": "Dartrix",
-    "picture": "images/dartrix.png",
-    "type": "Grass",
-    "evolvesTo": "Decidueye"
+    "name": "Bewear",
+    "picture": "images/bewear.png",
+    "type": "Normal",
+    "evolvesTo": "Bewear",
+    "breedsTo": "Stufful"
   },
   {
     "id": 5,
-    "name": "Decidueye",
-    "picture": "images/decidueye.png",
+    "name": "Rowlet",
+    "picture": "images/rowlet.png",
     "type": "Grass",
-    "evolvesTo": "Decidueye"
+    "evolvesTo": "Dartrix",
+    "breedsTo": "Rowlet"
   },
   {
     "id": 6,
-    "name": "Rockruff",
-    "picture": "images/rockruff.png",
-    "type": "Rock",
-    "evolvesTo": "Lycanroc"
+    "name": "Dartrix",
+    "picture": "images/dartrix.png",
+    "type": "Grass",
+    "evolvesTo": "Decidueye",
+    "breedsTo": "Rowlet"
   },
   {
     "id": 7,
-    "name": "Lycanroc",
-    "picture": "images/lycanroc_midday_form.png",
-    "type": "Rock",
-    "evolvesTo": "Lycanroc"
+    "name": "Decidueye",
+    "picture": "images/decidueye.png",
+    "type": "Grass",
+    "evolvesTo": "Decidueye",
+    "breedsTo": "Rowlet"
   },
   {
     "id": 8,
-    "name": "Litten",
-    "picture": "images/litten.png",
-    "type": "Fire",
-    "evolvesTo": "Torracat"
+    "name": "Rockruff",
+    "picture": "images/rockruff.png",
+    "type": "Rock",
+    "evolvesTo": "Lycanroc",
+    "breedsTo": "Rockruff"
   },
   {
     "id": 9,
-    "name": "Torracat",
-    "picture": "images/torracat.png",
-    "type": "Fire",
-    "evolvesTo": "Incineroar"
+    "name": "Lycanroc",
+    "picture": "images/lycanroc_midday_form.png",
+    "type": "Rock",
+    "evolvesTo": "Lycanroc",
+    "breedsTo": "Rockruff"
   },
   {
     "id": 10,
-    "name": "Incineroar",
-    "picture": "images/incineroar.png",
+    "name": "Litten",
+    "picture": "images/litten.png",
     "type": "Fire",
-    "evolvesTo": "Incineroar"
+    "evolvesTo": "Torracat",
+    "breedsTo": "Litten"
   },
   {
     "id": 11,
+    "name": "Torracat",
+    "picture": "images/torracat.png",
+    "type": "Fire",
+    "evolvesTo": "Incineroar",
+    "breedsTo": "Litten"
+  },
+  {
+    "id": 12,
+    "name": "Incineroar",
+    "picture": "images/incineroar.png",
+    "type": "Fire",
+    "evolvesTo": "Incineroar",
+    "breedsTo": "Litten"
+  },
+  {
+    "id": 13,
     "name": "Mimikyu",
     "picture": "images/mimikyu.png",
     "type": "Ghost",
-    "evolvesTo": "Mimikyu"
+    "evolvesTo": "Mimikyu",
+    "breedsTo": "Mimikyu"
+  },
+  {
+    "id": 14,
+    "name": "Popplio",
+    "picture": "images/popplio.png",
+    "type": "Water",
+    "evolvesTo": "Brionne",
+    "breedsTo": "Popplio"
+  },
+  {
+    "id": 15,
+    "name": "Brionne",
+    "picture": "images/brionne.png",
+    "type": "Water",
+    "evolvesTo": "Primarina",
+    "breedsTo": "Popplio"
+  },
+  {
+    "id": 16,
+    "name": "Primarina",
+    "picture": "images/primarina.png",
+    "type": "Water",
+    "evolvesTo": "Primarina",
+    "breedsTo": "Popplio"
+  },
+  {
+    "id": 17,
+    "name": "Bounsweet",
+    "picture": "images/bounsweet.png",
+    "type": "Grass",
+    "evolvesTo": "Steenee",
+    "breedsTo": "Bounsweet"
+  },
+  {
+    "id": 18,
+    "name": "Steenee",
+    "picture": "images/steenee.png",
+    "type": "Grass",
+    "evolvesTo": "Tsareena",
+    "breedsTo": "Bounsweet"
+  },
+  {
+    "id": 19,
+    "name": "Tsareena",
+    "picture": "images/tsareena.png",
+    "type": "Grass",
+    "evolvesTo": "Tsareena",
+    "breedsTo": "Bounsweet"
   }
 ]

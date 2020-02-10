@@ -8,10 +8,6 @@ contract("Cryptomon", accounts => {
         let owner = await contract._admin.call();
         assert.equal(owner, accounts[0]);
 
-        await contract.addInitialPokemon();
-        let numPokemon = parseInt(await contract._totalNumPokemon.call());
-        assert.equal(numPokemon, 2);
-
         let firstPokemonSpecies = parseInt(
             await contract._pokSpeciesId.call(0));
         assert.equal(firstPokemonSpecies, 1);
@@ -20,15 +16,15 @@ contract("Cryptomon", accounts => {
     it("int test, admin adding new species and cards", async () => {
         let contract = await Cryptomon.deployed();
         await contract.defineSpecies.sendTransaction(
-            11,    // species
+            65535, // species (very large number to not collide with 'real' speciesIds)
             15,    // type
-            11,    // evolvesTo
-            11,    // breedsTo
+            65535, // evolvesTo
+            65535, // breedsTo
             2,     // timesCanBreed
             { from: accounts[0] }
         );
         await contract.addPokemon.sendTransaction(
-            11,                                 // species
+            65535,                              // species
             web3.utils.toWei('0.1', "ether"),   // price
             true,                               // forSale
             1,                                  // level
@@ -39,7 +35,7 @@ contract("Cryptomon", accounts => {
         let newPokemonOwner = await contract.getOwner.call(newId);
         assert.equal(newPokemonOwner, accounts[0]);
         let newPokemonSpecies = await contract._pokSpeciesId.call(2);
-        assert.equal(newPokemonSpecies, 11);
+        assert.equal(newPokemonSpecies, 65535);
     });
 
     it("int test buying and selling pokemon", async () => {

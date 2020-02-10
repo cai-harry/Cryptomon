@@ -130,7 +130,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -149,7 +150,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -168,7 +170,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -187,7 +190,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -206,7 +210,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -225,7 +230,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -244,7 +250,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -263,7 +270,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -282,7 +290,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -301,7 +310,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -320,7 +330,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -333,7 +344,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -352,7 +364,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -371,7 +384,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -390,7 +404,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -409,7 +424,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -422,11 +438,13 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "stateMutability": "payable",
-      "type": "receive"
+      "type": "receive",
+      "payable": true
     },
     {
       "inputs": [],
@@ -452,7 +470,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -539,7 +558,8 @@
       "name": "buyPokemon",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
+      "type": "function",
+      "payable": true
     },
     {
       "inputs": [
@@ -601,7 +621,8 @@
       "name": "revive",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
+      "type": "function",
+      "payable": true
     },
     {
       "inputs": [
@@ -627,7 +648,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -21973,13 +21995,13 @@
             {
               "indexed": false,
               "internalType": "address",
-              "name": "from",
+              "name": "seller",
               "type": "address"
             },
             {
               "indexed": false,
               "internalType": "address",
-              "name": "to",
+              "name": "buyer",
               "type": "address"
             },
             {
@@ -21998,15 +22020,102 @@
           "name": "Purchase",
           "type": "event",
           "signature": "0x46661dab58311a6838247afecbee792192b4f27fc8b3e7168c66bc55ec2e404e"
+        },
+        "0x9aed943103b35f67bae36592bd6d9ceb5ad75e9fa2948eac10a56df488cda57c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "attacker",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "defender",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint8",
+              "name": "rand",
+              "type": "uint8"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint8",
+              "name": "winRate256",
+              "type": "uint8"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "winner",
+              "type": "uint256"
+            }
+          ],
+          "name": "Fight",
+          "type": "event",
+          "signature": "0x9aed943103b35f67bae36592bd6d9ceb5ad75e9fa2948eac10a56df488cda57c"
+        },
+        "0x27aebf2e0e5cf25f00bd3797d26b69f66ac7ccb85a55702906e672e9cb7d1c25": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "ListedForSale",
+          "type": "event",
+          "signature": "0x27aebf2e0e5cf25f00bd3797d26b69f66ac7ccb85a55702906e672e9cb7d1c25"
+        },
+        "0x7fec49099616f11f740db9fd697a5c5e6c02a45cd268ec2e909ca7277c21d401": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "pokId",
+              "type": "uint256"
+            }
+          ],
+          "name": "PokemonAdded",
+          "type": "event",
+          "signature": "0x7fec49099616f11f740db9fd697a5c5e6c02a45cd268ec2e909ca7277c21d401"
+        },
+        "0x534994138948cf5d19e812ccc566f09cab4902d6bff9033ca841730ce2fb4a72": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint16",
+              "name": "speciesId",
+              "type": "uint16"
+            }
+          ],
+          "name": "SpeciesDefined",
+          "type": "event",
+          "signature": "0x534994138948cf5d19e812ccc566f09cab4902d6bff9033ca841730ce2fb4a72"
         }
       },
       "links": {},
-      "address": "0x130f2704c74cB30Ac5b2b5a987E65707AaC121b0",
-      "transactionHash": "0x74c4bf1320fc1c5bbd5cefa761cd27165a46899b5331823bf8a237ee029ac9d0"
+      "address": "0xa7010f9260F79a9d0B56392c415D96E5b9E7F8f1",
+      "transactionHash": "0x5a07587ebcbb01764edcd93b41ea2a89bb91ad7c3f23c654163414ebee8bcae2"
     }
   },
   "schemaVersion": "3.0.22",
-  "updatedAt": "2020-02-09T23:07:56.477Z",
+  "updatedAt": "2020-02-10T16:19:58.074Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {}
   },
