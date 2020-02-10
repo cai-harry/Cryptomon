@@ -12,7 +12,7 @@ contract Cryptomon {
     bool[] public _pokCanEvolve;
     bool[] public _pokStunned;
     uint8[] public _pokTimesCanBreed;
-    uint[] public _pokGeneration;
+    uint8[] public _pokGeneration;
 
     mapping(uint16 => uint8) public _speciesType;
     mapping(uint16 => uint16) public _speciesEvolvesTo;
@@ -51,22 +51,35 @@ contract Cryptomon {
 
     function addInitialPokemon() external adminOnly() {
         require(_totalNumPokemon == 0, "Pokemon have already been added");
-        defineSpecies(
-            1, // Species: Tapu Koko 
-            4, // Type: Electric 
-            1, // Evolves to
-            1, // Breeds to
-            0 // Times can breed
-        );
-        defineSpecies(
-            2, // Species: Tapu Lele
-            17, // Type: Fairy
-            2, 
-            2, 
-            0
-        );
-        addPokemon(1, 1 ether, true, 5);
-        addPokemon(2, 1 ether, true, 5);
+        defineSpecies(1, 4, 1, 1, 0); // Tapu Koko
+        defineSpecies(2, 17, 2, 2, 0); // Tapu Lele
+        defineSpecies(3, 0, 4, 3, 1); // Stufful
+        defineSpecies(4, 0, 4, 3, 1); // Bewear
+        defineSpecies(5, 3, 6, 5, 2); // Rowlet
+        defineSpecies(6, 3, 7, 5, 2); // Dartrix
+        defineSpecies(7, 3, 7, 5, 2); // Decidueye
+        defineSpecies(8, 12, 9, 8, 2); // Rockruff
+        defineSpecies(9, 12, 9, 8, 2); // Lycanroc
+        defineSpecies(10, 1, 11, 10, 2); // Litten
+        defineSpecies(11, 1, 12, 10, 2); // Torracat
+        defineSpecies(12, 1, 12, 10, 2); // Incineroar
+        defineSpecies(13, 15, 13, 13, 2); // Mimikyu
+        defineSpecies(14, 2, 15, 14, 2); // Popplio
+        defineSpecies(15, 2, 16, 14, 2); // Brionne
+        defineSpecies(16, 2, 16, 14, 2); // Primarina
+        defineSpecies(17, 3, 18, 17, 2); // Bounsweet
+        defineSpecies(18, 3, 19, 17, 2); // Steenee
+        defineSpecies(19, 3, 19, 17, 2); // Tsareena
+
+        addPokemon(1,  1 ether,    true, 5);
+        addPokemon(2,  1 ether,    true, 5);
+        addPokemon(3,  200 finney, true, 1);
+        addPokemon(5,  100 finney, true, 1);
+        addPokemon(8,  100 finney, true, 1);
+        addPokemon(10, 100 finney, true, 1);
+        addPokemon(13, 100 finney, true, 1);
+        addPokemon(14, 100 finney, true, 1);
+        addPokemon(17, 100 finney, true, 1);
     }
 
     receive () external payable {
@@ -88,25 +101,9 @@ contract Cryptomon {
     }
 
     function addPokemon(
-        uint16 species,
-        uint price,
-        bool forSale,
-        uint8 level
+        uint16 species, uint price, bool forSale, uint8 level
     ) public adminOnly() {
-        require(_speciesType[species] != 0, "The type for this species hasn't been defined");
-        require(_speciesEvolvesTo[species] != 0, "The next evolution for this species hasn't been defined");
-        require(_speciesBreedsTo[species] != 0, "The first evolution on birth for this species hasn't been defined");
-        _totalNumPokemon += 1;
-        _pokSpeciesId.push(species);
-        _pokOwner.push(_admin);
-        _pokForSale.push(forSale);
-        _pokPrice.push(price);
-        _pokLevel.push(level);
-        _pokCanEvolve.push(false);
-        _pokStunned.push(false);
-        _pokTimesCanBreed.push(_speciesTimesCanBreed[species]);
-        _pokGeneration.push(0);
-        emit PokemonAdded(_totalNumPokemon - 1);
+        _addPokemon(species, 0, price, forSale, level, _admin);
     }
 
     function setRevivePrice(uint price) external adminOnly() {
@@ -133,7 +130,8 @@ contract Cryptomon {
 
     function fight(uint attacker, uint defender) external checkPokemonId(attacker) checkPokemonId(defender) checkOwnsPokemon(attacker) {
         require(!_pokStunned[attacker], "This pokemon is stunned");
-        uint8 rand = random();
+        require(!_pokStunned[defender], "Cannot attack a stunned pokemon");
+        uint8 rand = _random();
         uint8 advantage = _pokLevel[attacker] - _pokLevel[defender]; // +4 => certain win, -4 => certain loss
         uint8 winRate256 = 2 ** (4 + advantage) - 1; // 256 => 100% win rate
         uint winner;
@@ -172,8 +170,16 @@ contract Cryptomon {
 
     function breed(uint id) external checkPokemonId(id) checkOwnsPokemon(id) {
         require(_pokTimesCanBreed[id] > 0, "This pokemon cannot or can no longer breed");
+        require(!_pokStunned[id], "This pokemon is stunned");
         _pokTimesCanBreed[id] -= 1;
-        addPokemon(_speciesBreedsTo[_pokSpeciesId[id]], 0, false, 1);
+        _addPokemon(
+            _speciesBreedsTo[_pokSpeciesId[id]], 
+            _pokGeneration[id] + 1,
+            0, 
+            false, 
+            1,
+            msg.sender
+        );
     }
 
     function checkBalance() external view returns (uint balance) {
@@ -188,7 +194,30 @@ contract Cryptomon {
         recipient.transfer(amount);
     }
 
-    function random() private view returns (uint8) {
+    function _addPokemon(
+        uint16 species,
+        uint8 generation,
+        uint price,
+        bool forSale,
+        uint8 level,
+        address owner
+    ) internal {
+        require(_speciesEvolvesTo[species] != 0, "The next evolution for this species hasn't been defined");
+        require(_speciesBreedsTo[species] != 0, "The first evolution on birth for this species hasn't been defined");
+        _totalNumPokemon += 1;
+        _pokSpeciesId.push(species);
+        _pokOwner.push(owner);
+        _pokForSale.push(forSale);
+        _pokPrice.push(price);
+        _pokLevel.push(level);
+        _pokCanEvolve.push(false);
+        _pokStunned.push(false);
+        _pokTimesCanBreed.push(_speciesTimesCanBreed[species]);
+        _pokGeneration.push(generation);
+        emit PokemonAdded(_totalNumPokemon - 1);
+    }
+
+    function _random() internal view returns (uint8) {
         // TODO: find a better way to do this
         return uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty))) % 251);
     }
