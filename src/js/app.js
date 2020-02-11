@@ -123,8 +123,6 @@ App = {
 
   render: async function (buyers, account) {
 
-    // TODO: split this into smaller functions
-
     var account;
 
     let crt = await App.contracts.Cryptomon.deployed();
@@ -162,12 +160,6 @@ App = {
       card.find('.pok-breeds-to').text(data[speciesId].breedsTo);
       card.find('img').attr('src', data[speciesId].picture);
 
-      // TODO: use these instead?
-      // let typeId = parseInt(await crt._speciesType.call(speciesId));
-      // let firstEvoId = parseInt(await crt._speciesBreedsTo.call(speciesId));
-      // let nextEvoId = parseInt(await crt._speciesEvolvesTo.call(speciesId));
-
-
       let owner = await crt._pokOwner.call(id);
       let userOwnsThis = owner == account;
 
@@ -189,7 +181,6 @@ App = {
         card.find('.span-fight').empty();
       } else {
         let dropdown = card.find('#select-id');
-        // TODO: inefficient
         for (let otherId = 0; otherId < numPok; otherId++) {
           if (otherId == id) { continue };
           if (await crt._pokStunned.call(otherId)) { continue };

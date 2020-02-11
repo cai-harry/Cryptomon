@@ -1,7 +1,5 @@
 const Cryptomon = artifacts.require("Cryptomon");
 
-// TODO: a proper story going through every path
-
 contract("Cryptomon", accounts => {
     it("int test, admin setup", async () => {
         let contract = await Cryptomon.deployed();
