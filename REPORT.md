@@ -16,7 +16,7 @@ Whichever address deploys the smart contract, `Cryptomon.sol`, to the blockchain
 
 When first deployed the contract is in an empty state with no Pokemon cards.
 
-The _Admin_ can call `addInitialPokemon()` which will define and add a few Pokemon cards of different species. To begin with they are all owned by the Admin and listed for sale at different prices.
+The Admin can call `addInitialPokemon()` which will define and add a few Pokemon cards of different species. To begin with they are all owned by the Admin and listed for sale at different prices.
 
 ### Buying Pokemon
 
@@ -95,18 +95,37 @@ Lower generation numbers are therefore rarer cards. The owner of a Pokemon card 
 
 ### Admin Functions
 
-No UI for admin
+The contract has a couple of functions for admin use only, such as `defineSpecies()` and `addPokemon()`. These are not included in the UI and the Admin would have to call these using eg. the truffle console.
 
-Example js code to add new species and cards
-Need to change the javascript UI for users to see
+For example, to define and add a card for a Tapu Bulu, the admin might open up a truffle console:
+
+```
+truffle console
+```
+
+And call the necessary contract functions:
+
+```
+let crt = await Cryptomon.deployed();
+await crt.defineSpecies(20, 3, 20, 20);
+await crt.addPokemon(20, web3.toWei(1, 'ether'), true, 5);
+```
+
+These transactions would need to be sent from the Admin address.
+
+Next the game admin would update the UI to be able to render the new card (images and text are not stored on the blockchain!), and roll out the updated UI to users.
 
 ## Security considerations
 
 ### RNG
 
-A miner could exploit this to make sure they win all their battles: (explain how)
+Random numbers are generated using the hash of the block timestamp and block difficulty (see `Cryptomon._random()`).
 
-However, it would not make economic sense for them to do this; ... by playing the game as normal, they may lose some battles and have to pay the 0.01 ETH revive fee a few times before they can evolve their Pokemon cards. By using the above exploit they can win all their battles and avoid paying these revive fees, but they stand to make far more Ether from mining and publishing blocks immediately.
+A miner could exploit this to make sure they win all their battles: they could include a fight transaction in only their local copy (ie. not broadcast this fight transaction), and then if they obtain a valid block, only broadcast this block if they won that fight.
+
+However, it would not make economic sense for them to do this. By using the above exploit they can win all their battles and avoid paying the revive fees for losing, but they stand to make far more Ether from mining and publishing all blocks immediately.
+
+In summary, as long as the revive fees are very small in comparison to mining block rewards, the RNG cannot be exploited by an rational miner agent.
 
 ### Withdrawal pattern
 
