@@ -1,6 +1,10 @@
-# Pet Shop Tutorial
+# Cryptomon
 
-From https://www.trufflesuite.com/tutorials/pet-shop
+Requirements
+- [Node.js v8+ LTS and npm](https://nodejs.org/en/) (comes with Node)
+- [Git](https://git-scm.com/downloads)
+- Truffle (`npm install -g truffle`)
+- [Ganache](https://www.trufflesuite.com/ganache)
 
 ## Compile
 ```

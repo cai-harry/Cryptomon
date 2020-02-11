@@ -218,7 +218,7 @@ contract Cryptomon {
     }
 
     function _random() internal view returns (uint8) {
-        // TODO: find a better way to do this
+        // credit: https://gist.github.com/michielmulders/b14d795a1d2c38af1133ea546fc641bc
         return uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty))) % 251);
     }
 
