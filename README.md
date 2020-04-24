@@ -1,6 +1,12 @@
 # Cryptomon
 
-[See the report here](REPORT.md)
+This was a coursework assignment for [CO467 Principles of Distributed Ledgers](https://www.imperial.ac.uk/computing/current-students/courses/467/).
+
+[The report in markdown](REPORT.md)
+
+[The report pdf, written in latex](https://github.com/cai-harry/CryptomonReport/blob/master/report.pdf)
+
+![Initial game state](https://github.com/cai-harry/Cryptomon/blob/master/readme_images/initial.png?raw=true)
 
 Requirements
 - [Node.js v8+ LTS and npm](https://nodejs.org/en/) (comes with Node)
